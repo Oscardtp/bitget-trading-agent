@@ -1,131 +1,251 @@
+﻿<div align="center">
+
 # Bitget Trading Agent
 
-Multi-timeframe algorithmic trading agent for Bitget with AI-powered market regime detection, hypothesis-driven strategy execution, and real-time monitoring dashboard.
+### Multi-timeframe algorithmic trading system with AI-powered regime detection
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)](LICENSE)
+[![Python 3.14](https://img.shields.io/badge/Python-3.14-3b82f6.svg)](https://python.org)
+[![Next.js 15](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688.svg)](https://fastapi.tiangolo.com)
+[![Bitget](https://img.shields.io/badge/Bitget-ccxt-ff6600.svg)](https://ccxt.com)
+[![Status](https://img.shields.io/badge/Status-Paper%20Trading-yellow)]()
+
+<br/>
+
+**The entry is irrelevant. Management is everything.**
+
+A systematic trading agent that tests hypotheses across multiple timeframes,
+adapts to market regimes, and manages risk dynamically — all with full lifecycle
+logging and a real-time monitoring dashboard.
+
+[Architecture](#architecture) &bull; [Features](#features) &bull; [Quick Start](#quick-start) &bull; [Dashboard](#dashboard) &bull; [Contributing](#contributing)
+
+</div>
+
+---
 
 ## Architecture
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌──────────────┐
-│  1H Context  │────▶│ 15M Signal   │────▶│  5M Entry    │
-│  (Trend)     │     │ (Breakout)   │     │ (Precision)  │
-└─────────────┘     └──────────────┘     └──────────────┘
-       │                    │                    │
-       ▼                    ▼                    ▼
-  Regime Detection    Strategy Filter     Risk Management
-  (8 regimes)         (R:R ≥ 2:1)        (0.5-2% per trade)
+                 HYPOTHESIS-DRIVEN EXECUTION PIPELINE
+
+  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+  │   1H Context │────>│  15M Signal  │────>│   5M Entry   │────>│  Risk Engine │
+  │              │     │              │     │              │     │              │
+  │  Trend       │     │  Breakout    │     │  Precision   │     │  Dynamic     │
+  │  Regime      │     │  Filter      │     │  Timing      │     │  Sizing      │
+  └──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+        |                    |                    |                    |
+        v                    v                    v                    v
+  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+  │  8 Regime    │     │  R:R >= 2:1  │     │  Trailing    │     │  Kill        │
+  │  Classes     │     │              │     │  Stops       │     │  Switch      │
+  └──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
 ```
+
+<br/>
 
 ## Features
 
-- **Multi-Timeframe Pipeline**: 1H context → 15M signal → 5M entry optimization
-- **Market Regime Detection**: 8 regimes with confidence scoring and strategy recommendations
-- **Hypothesis-Driven Execution**: Every trade is a testable thesis with structured logging
-- **Dynamic Risk Management**: DrawdownManager, Kill Switch, trailing stops, daily trade limits
-- **Paper Trading**: Realistic simulation with real orderbook spread, slippage, and commission
-- **Real-Time Dashboard**: AI reasoning, market context, trades, and performance metrics
-- **Event Store**: Full lifecycle timeline for every trade decision
+### Multi-Timeframe Intelligence
+
+- **1H Context** — Market trend, regime, and session analysis
+- **15M Signal** — Breakout detection with volume confirmation
+- **5M Entry** — Precision timing with orderbook depth
+- Each timeframe answers one specific question
+
+### AI Regime Detection
+
+- **8 market regimes** with confidence scoring
+- Regime-adaptive strategy selection
+- Real-time indicator computation (ADX, RSI, Bollinger)
+- Historical pattern matching
+
+### Dynamic Risk Management
+
+- **DrawdownManager** — 3F-R protection with adaptive sizing
+- **Kill Switch** — Instant halt capability
+- **Trailing Stops** — 3-stage profit protection
+- **Daily Limits** — Max 5 trades/day, max 1 position
+
+### Hypothesis-Driven Execution
+
+- Every trade is a **testable thesis**
+- Structured logging: 12 fields per operation
+- Verdict tracking: CONFIRMED / INVALIDATED
+- Full lifecycle timeline in Event Store
+
+### Paper Trading
+
+- Real orderbook spread simulation
+- Slippage modeling (0.05%)
+- Commission simulation (0.1%)
+- Execution delay (100-500ms)
+
+### Real-Time Dashboard
+
+- AI reasoning visualization
+- Live market context and regime
+- Trade timeline with event filtering
+- Performance metrics and system health
+
+<br/>
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Exchange | [ccxt](https://github.com/ccxt/ccxt) (Bitget) |
-| Data | Pandas, NumPy |
-| Database | SQLite (WAL mode) |
-| Backend API | FastAPI, Uvicorn, WebSocket |
-| Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS v4 |
-| Config | Pydantic Settings |
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| Exchange | [ccxt](https://github.com/ccxt/ccxt) | Bitget market data |
+| Data | Pandas, NumPy | OHLCV processing, indicators |
+| Database | SQLite (WAL) | Trade and event persistence |
+| API | FastAPI, WebSocket | Real-time data bridge |
+| Frontend | Next.js 15, React 19 | Monitoring dashboard |
+| Styling | Tailwind CSS v4 | Dark terminal theme |
+| Config | Pydantic Settings | Environment management |
+
+<br/>
 
 ## Quick Start
 
-### 1. Install Python dependencies
+### Prerequisites
+
+- Python 3.14+
+- Node.js 18+
+- npm or yarn
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/Oscardtp/bitget-trading-agent.git
+cd bitget-trading-agent
+
+# Install Python dependencies
 cd TradingAgent
 pip install -r requirements.txt
-```
 
-### 2. Configure environment
-
-```bash
+# Configure environment (optional for paper trading)
 cp .env.example .env
-# Edit .env with your Bitget API keys (optional for paper trading)
-```
 
-### 3. Install frontend dependencies
-
-```bash
+# Install frontend dependencies
 cd frontend
 npm install
 ```
 
-### 4. Run
+### Running
 
 ```bash
-# Terminal 1: Backend + Bot
+# Terminal 1: Backend + Trading Bot
 cd TradingAgent
-python run.py
+python run.py --log-level INFO
 
 # Terminal 2: Dashboard
 cd TradingAgent/frontend
 npm run dev
 ```
 
-Dashboard available at [http://localhost:3000](http://localhost:3000)
+Dashboard: http://localhost:3000
+API: http://localhost:8000
+
+<br/>
 
 ## Dashboard
 
-The real-time monitoring dashboard provides:
+Five screens designed for **systematic traders** who think in probabilities:
 
-- **AI Brain**: Live market context, regime detection, and system reasoning
-- **Market**: Metrics radar, funding rates, open interest, sentiment
-- **Trades**: Open positions, entry/exit prices, PnL tracking
-- **History**: Trade timeline, performance statistics, event logs
-- **Settings**: System health, configuration, kill switch
+| Screen | Purpose |
+|--------|---------|
+| **Dashboard** | AI brain — live context, regime, performance, trades |
+| **Market** | Metrics grid — volatility, volume, liquidity, funding, OI |
+| **Trades** | Open positions, entry/exit, PnL tracking |
+| **History** | Trade timeline, performance statistics, event logs |
+| **Settings** | System health, configuration, kill switch |
+
+> **Design philosophy:** Agent reasoning is the protagonist. Charts are secondary context.
+
+<br/>
 
 ## Strategy Phases
 
-| Phase | Strategies | Status |
-|-------|-----------|--------|
-| 1 | Breakout (acceptance) | Active |
-| 2 | + Pullback | Planned |
-| 3 | + Mean Reversion | Planned |
-| 4 | + Scalping | Planned |
+Rollout is **phased** — each strategy must validate before the next activates:
+
+| Phase | Strategies | Capital Allocation | Status |
+|-------|-----------|-------------------|--------|
+| 1 | Breakout (acceptance) | 100% | Active |
+| 2 | + Pullback | 70% / 30% | Planned |
+| 3 | + Mean Reversion | 50% / 25% / 25% | Planned |
+| 4 | + Scalping | 40% / 20% / 20% / 20% | Planned |
+
+### Go/No-Go Criteria for Real Capital
+
+| Metric | Threshold |
+|--------|-----------|
+| Expectancy | > 0 |
+| Profit Factor | > 1.5 |
+| Max Drawdown | < 8-10% |
+| Trades Documented | >= 100 |
+| Kill Switch | Tested |
+| Risk Engine | Validated |
+
+<br/>
 
 ## Risk Rules
 
-- Position size: 0.5-2% of capital per trade
-- Risk/Reward minimum: 2:1
-- 3 consecutive losses → risk reduces to 0.25%
-- Daily trade limit: 5 trades
-- Kill switch available for immediate halt
+```
+POSITION SIZING
++-- Base risk:        0.5% - 2% per trade
++-- After 3 losses:   0.25%
++-- R:R minimum:      2:1
++-- Daily limit:      5 trades
++-- Max positions:    1
+
+PROTECTION LAYERS
++-- Structure-based SL (ATR)
++-- 3-stage trailing stop
++-- ThesisMonitor (regime/volume/confidence)
++-- DrawdownManager (3F-R)
++-- Kill Switch (manual or auto)
+```
+
+<br/>
 
 ## Project Structure
 
 ```
 TradingAgent/
-├── main_loop.py          # Core trading loop
-├── run.py                # Unified entry point (API + Bot)
-├── api/                  # FastAPI backend
-├── config/               # Settings
-├── context/              # Multi-timeframe context, indicators
-├── data/                 # Exchange client, market data
-├── db/                   # SQLite models
-├── execution/            # Order execution (future)
-├── filters/              # No-trade filters
-├── hypothesis/           # Hypothesis builder
-├── logs/                 # Event store, log manager
-├── monitor/              # Thesis monitor
-├── regime/               # Regime detector
-├── risk/                 # Drawdown, kill switch, position sizing
-├── strategies/           # Strategy orchestrator, breakout, pullback
-├── validation/           # Metrics tracking
-└── frontend/             # Next.js dashboard
++-- main_loop.py          # Core trading loop
++-- run.py                # Unified entry point (API + Bot)
++-- api/                  # FastAPI backend
++-- config/               # Settings
++-- context/              # Multi-timeframe context, indicators
++-- data/                 # Exchange client, market data
++-- db/                   # SQLite models
++-- execution/            # Order execution (future)
++-- filters/              # No-trade filters
++-- hypothesis/           # Hypothesis builder
++-- logs/                 # Event store, log manager
++-- monitor/              # Thesis monitor
++-- regime/               # Regime detector
++-- risk/                 # Drawdown, kill switch, position sizing
++-- strategies/           # Strategy orchestrator, breakout, pullback
++-- validation/           # Metrics tracking
++-- frontend/             # Next.js dashboard
 ```
+
+<br/>
 
 ## Contributing
 
-Contributions welcome. Areas of interest:
+Contributions are welcome. Here's how to get started:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Areas of Interest
 
 - New strategy implementations (pullback, mean reversion, scalping)
 - Additional exchange support
@@ -133,6 +253,16 @@ Contributions welcome. Areas of interest:
 - Performance analytics improvements
 - Documentation and testing
 
+<br/>
+
 ## License
 
-MIT
+Distributed under the MIT License. See `LICENSE` for more information.
+
+<br/>
+
+<div align="center">
+
+**Built with discipline, not hope.**
+
+</div>
