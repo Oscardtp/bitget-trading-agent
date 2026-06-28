@@ -1,0 +1,312 @@
+================================================================================
+                    MANUAL DE USO - TRADING AGENT BOT
+                  Bitget Autonomous Trading Bot v2.0
+================================================================================
+
+
+1. DESCRIPCION GENERAL
+================================================================================
+
+El Trading Agent Bot es un sistema de trading autonomo disenado para operar en
+el exchange Bitget. Utiliza inteligencia artificial y analisis tecnico para
+tomar decisiones de compra y venta de forma automatica.
+
+Caracteristicas principales:
+
+  - Bot de trading autonomo para Bitget: opera pares de criptomonedas de
+    forma automatica, ejecutando ordenes de compra y venta segun senales
+    generadas por estrategias de analisis tecnico.
+
+  - Modo paper trading (sin dinero real): todas las operaciones se ejecutan
+    en un modo de simulacion que no utiliza fondos reales. Esto permite
+    probar y ajustar estrategias sin riesgo financiero.
+
+  - Arquitectura multi-timeframe: el sistema opera en tres temporalidades
+    coordinadas:
+
+      * 1H (1 hora)  -> Contexto: determina la tendencia general del mercado
+      * 15M (15 min) -> Senal: identifica puntos de entrada y salida
+      * 5M (5 min)   -> Entrada: optimiza el precio exacto de ejecucion
+
+
+2. REQUISITOS
+================================================================================
+
+Para ejecutar el Trading Agent Bot se necesitan los siguientes componentes:
+
+  - Python 3.14 o superior
+    Verificar con: python --version
+
+  - Node.js (necesario para el frontend/dashboard)
+    Verificar con: node --version
+
+  - Dependencias en requirements.txt
+    Todas las librerias de Python necesarias estan listadas en este archivo.
+    Incluyen: uvicorn, fastapi, pandas, numpy, ccxt, sqlalchemy, y otras.
+
+
+3. INSTALACION
+================================================================================
+
+Paso 1: Instalar dependencias de Python
+
+  Ejecutar en la terminal desde la carpeta raiz del proyecto:
+
+    pip install -r requirements.txt
+
+Paso 2: Instalar dependencias del frontend
+
+  Ejecutar los siguientes comandos:
+
+    cd frontend
+    npm install
+
+  Esto instalara todas las dependencias necesarias para el dashboard web.
+
+
+4. EJECUCION
+================================================================================
+
+Opcion A - Ejecucion unificada (recomendada):
+
+  Esta opcion ejecuta el backend y el frontend juntos con un solo comando:
+
+    python run.py --log-level INFO
+
+  El bot iniciara el servidor API y el dashboard automaticamente.
+
+Opcion B - Ejecucion separada (para desarrollo):
+
+  Si se desea ejecutar cada componente por separado, abrir tres terminales
+  distintas y ejecutar los siguientes comandos:
+
+  Terminal 1 - Servidor API:
+
+    python -m uvicorn api.main:app --port 8000
+
+  Terminal 2 - Frontend/Dashboard:
+
+    cd frontend
+    npm run dev
+
+  Terminal 3 - Bot principal:
+
+    python main.py --log-level INFO
+
+  Nota: todos los componentes deben estar ejecutandose simultaneamente para
+  que el sistema funcione correctamente.
+
+
+5. CONFIGURACION
+================================================================================
+
+El sistema se configura mediante dos mecanismos principales:
+
+  A) Archivo .env (variables de entorno):
+
+    Todas las variables de entorno deben llevar el prefijo TA_.
+    Ejemplo:
+
+      TA_BITGET_API_KEY=tu_api_key_aqui
+      TA_BITGET_SECRET=tu_secret_aqui
+      TA_BITGET_PASSPHRASE=tu_passphrase_aqui
+
+  B) Archivo config/settings.py:
+
+    Parametros configurables del bot, incluyendo:
+
+      - Pares de trading (ej: BTC/USDT)
+      - Parametros de estrategia
+      - Limites de riesgo
+      - Tamanio de posiciones
+
+  C) Intervalos de ejecucion:
+
+    Los siguientes intervalos controlan la frecuencia de cada modulo:
+
+      - Scanner:     60 segundos (busca nuevas senales en el mercado)
+      - Monitor:     30 segundos (monitorea posiciones abiertas)
+      - Context:    300 segundos (5 min, actualiza contexto del mercado)
+
+  Ajustar estos valores en config/settings.py segun necesidad.
+
+
+6. DASHBOARD
+================================================================================
+
+El sistema incluye un dashboard web interactivo para visualizar todas las
+operaciones y datos del bot en tiempo real.
+
+  URLs de acceso:
+
+    - Frontend (Dashboard):  http://localhost:3000
+    - API (Backend):         http://localhost:8000
+
+  Pantallas disponibles:
+
+    - AI Brain:     Muestra el proceso de decision del bot, senales
+                    generadas y razonamiento detras de cada operacion.
+
+    - Market:       Datos del mercado en tiempo real, precios actuales,
+                    volumen, y metricas de los pares monitoreados.
+
+    - Trade:        Operaciones activas, posiciones abiertas, nivel de
+                    riesgo actual y beneficio/pérdida en tiempo real.
+
+    - History:      Historial completo de operaciones cerradas, con
+                    resultados detallados de cada trade.
+
+    - Settings:     Configuracion del bot, parametros ajustables y
+                    estado del sistema.
+
+  Comunicacion en tiempo real:
+
+    El dashboard utiliza WebSocket para recibir actualizaciones en tiempo
+    real sin necesidad de recargar la pagina. Los datos de precios,
+    senales y operaciones se actualizan automaticamente.
+
+
+7. API ENDPOINTS
+================================================================================
+
+El servidor API expone los siguientes endpoints:
+
+  SALUD DEL SISTEMA:
+
+    GET /api/health
+      Verifica que el sistema este operativo.
+      Retorna el estado de todos los componentes.
+
+  MERCADO:
+
+    GET /api/market/context
+      Obtiene el contexto general del mercado (tendencia, momentum, etc).
+
+    GET /api/market/regime
+      Retorna el regimen actual del mercado (rango, tendencia, volatilidad).
+
+    GET /api/market/features
+      Retorna las caracteristicas tecnicas calculadas del mercado.
+
+  OPERACIONES:
+
+    GET /api/trades/
+      Lista todas las operaciones registradas.
+
+    GET /api/trades/open
+      Lista solo las operaciones que estan abiertas actualmente.
+
+    GET /api/trades/{id}
+      Obtiene los detalles de una operacion especifica por su ID.
+
+    GET /api/trades/{id}/timeline
+      Obtiene la linea temporal de eventos de una operacion.
+
+    GET /api/trades/{id}/monitoring
+      Obtiene datos de monitoreo en tiempo real de una operacion.
+
+  ESTADISTICAS:
+
+    GET /api/stats/
+      Retorna estadisticas generales: ganancia/pérdida total, tasa de
+      acierto, numero de operaciones, etc.
+
+  EVENTOS:
+
+    POST /api/events
+      Registra un evento manual en el sistema.
+
+  WEBSOCKET:
+
+    WS /ws/live
+      Conexion WebSocket para recibir datos en tiempo real:
+      precios, senales, operaciones y alertas.
+
+
+8. ESTRUCTURA DEL PROYECTO
+================================================================================
+
+Los directorios principales del proyecto son:
+
+  api/            Servidor FastAPI, rutas y endpoints del backend.
+  config/         Archivos de configuracion y settings del bot.
+  context/        Modulo de analisis de contexto del mercado (1H).
+  data/           Datos historicos, cache y archivos de mercado.
+  db/             Base de datos, modelos y migraciones.
+  execution/      Ejecucion de ordenes de compra y venta en Bitget.
+  filters/        Filtros de senales y validacion de entradas.
+  logs/           Archivos de registro de actividad del bot.
+  monitor/        Monitoreo de posiciones abiertas y alertas.
+  risk/           Gestion de riesgo, stop-loss y take-profit.
+  strategies/     Estrategias de trading y generacion de senales.
+  frontend/       Aplicacion web React/Next.js para el dashboard.
+
+
+9. MODO DE OPERACION
+================================================================================
+
+El bot opera de forma continua siguiendo el siguiente ciclo:
+
+  1. Analisis cada 60 segundos:
+     El modulo Scanner se ejecuta cada 60 segundos buscando nuevas
+     oportunidades de trading en los pares configurados.
+
+  2. Busqueda de senales de breakout en 15M:
+     Se analizan graficos de 15 minutos identificando patrones de
+     rupture, volumen creciente y momentos de tendencia.
+
+  3. Optimizacion de entrada en 5M:
+     Cuando se detecta una senal en 15M, se baja a temporalidad de
+     5 minutos para encontrar el precio de entrada mas preciso.
+
+  4. Gestion de posiciones abiertas:
+     El modulo Monitor revisa continuamente las posiciones activas,
+     ajustando stop-loss y take-profit segun evoluciona el mercado.
+
+  5. Visualizacion en dashboard:
+     Toda la informacion se muestra en el dashboard en tiempo real
+     a traves de WebSocket, incluyendo senales, operaciones y
+     metricas de rendimiento.
+
+  El sistema repite este ciclo de forma continua mientras este en
+  ejecucion, generando oportunidades y gestionando operaciones
+  automaticamente.
+
+
+10. SOLUCION DE PROBLEMAS
+================================================================================
+
+  Problema: Puerto ocupado al iniciar el servidor
+
+    Solucion:
+      Identificar el proceso que usa el puerto con:
+        netstat -ano | findstr :8000
+
+      Luego terminar el proceso con:
+        taskkill /PID <pid> /F
+
+      Reemplazar <pid> con el numero de proceso mostrado.
+
+  Problema: Error de CORS en el navegador
+
+    Solucion:
+      Verificar que la configuracion de allowedDevOrigins este correcta
+      en el archivo frontend/next.config.ts.
+      Asegurarse de que http://localhost:3000 este incluido en la lista
+      de origenes permitidos.
+
+  Problema: Base de datos vacia, no hay datos
+
+    Solucion:
+      El bot necesita estar ejecutandose para generar datos.
+      Iniciar el bot con:
+        python main.py --log-level INFO
+      Esperar al menos un ciclo completo del Scanner (60 segundos)
+      para que comience a generar informacion.
+      Refrescar el dashboard para ver los datos actualizados.
+
+
+================================================================================
+  FIN DEL MANUAL DE USO - TRADING AGENT BOT
+  Version 2.0
+================================================================================
